@@ -14,3 +14,5 @@ export type PlanetType = {
   terrain: string,
   url: string,
 };
+
+export type PlanetsArray = PlanetType[];
