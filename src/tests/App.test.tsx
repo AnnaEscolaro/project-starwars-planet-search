@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import fetchPlanets from '../api/fetch-planets';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
-import { MockFetch } from './mockFetch/mockFetch';
+import { MockFetch } from './mock/mockFetch';
 import { vi } from 'vitest';
 
 test('São renderizados inputs, botão para adicionar filtro e dados da API', async () => {

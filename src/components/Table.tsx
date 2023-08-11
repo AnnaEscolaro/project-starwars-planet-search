@@ -4,6 +4,13 @@ import PlanetContext from '../context/PlanetContext';
 
 function Table() {
   const [planets, setPlanets] = useState<PlanetType[]>([]);
+  const [filterOptions, setFilterOptions] = useState([
+    'population',
+    'orbital_period',
+    'diameter',
+    'rotation_period',
+    'surface_water',
+  ]);
   const [column, setColumn] = useState('population');
   const [operator, setOperator] = useState('maior que');
   const [number, setNumber] = useState('0');
@@ -40,6 +47,13 @@ function Table() {
           === Number(number));
       setPlanets(filteredPlanets);
     }
+
+    setFilterOptions(filterOptions.filter((filterOption) => filterOption !== column));
+    setColumn(filterOptions[1]);
+
+    if (column !== filterOptions[0]) {
+      setColumn(filterOptions[0]);
+    }
   };
 
   return (
@@ -56,11 +70,11 @@ function Table() {
           data-testid="column-filter"
           onChange={ (e) => setColumn(e.target.value) }
         >
-          <option>population</option>
-          <option>orbital_period</option>
-          <option>diameter</option>
-          <option>rotation_period</option>
-          <option>surface_water</option>
+          {
+            filterOptions.map((filterOption) => (
+              <option key={ filterOption }>{ filterOption }</option>
+            ))
+          }
         </select>
         <select
           data-testid="comparison-filter"
