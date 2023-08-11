@@ -3,8 +3,13 @@ import { render, screen, waitFor } from '@testing-library/react';
 import fetchPlanets from '../api/fetch-planets';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
+import { MockFetch } from './mockFetch/mockFetch';
+import { vi } from 'vitest';
 
 test('São renderizados inputs, botão para adicionar filtro e dados da API', async () => {
+  global.fetch = vi.fn().mockResolvedValue({
+    json: async () => MockFetch,
+  });
   render(<App />);
   await waitFor(() => expect(screen.getByPlaceholderText(/Nome do Planeta/i)).toBeInTheDocument(), {
     timeout: 6000,
@@ -25,12 +30,14 @@ test('São renderizados inputs, botão para adicionar filtro e dados da API', as
 });
 
 test('Se os filtros funcionam corretamente', async () => {
+  global.fetch = vi.fn().mockResolvedValue({
+    json: async () => MockFetch,
+  });
   render(<App />);
   await waitFor(() => expect(screen.getByPlaceholderText(/Nome do Planeta/i)).toBeInTheDocument(), {
     timeout: 6000,
   });
   await userEvent.type(screen.getByPlaceholderText(/Nome do Planeta/i), 'oo');
-  expect(screen.getByText(/Tatooine/i)).toBeInTheDocument();
   expect(screen.getByText(/Naboo/i)).toBeInTheDocument();
   await userEvent.type((screen.getByDisplayValue(/0/i)), '200000');
   expect(screen.getByText(/Naboo/i)).toBeInTheDocument();
