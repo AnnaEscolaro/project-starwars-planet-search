@@ -16,3 +16,9 @@ export type PlanetType = {
 };
 
 export type PlanetsArray = PlanetType[];
+
+export type AppliedFilterType = {
+  column: string,
+  operator: string,
+  number: string,
+};

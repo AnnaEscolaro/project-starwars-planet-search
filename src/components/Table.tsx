@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
-import { PlanetType } from '../types';
+import { PlanetType, AppliedFilterType } from '../types';
 import PlanetContext from '../context/PlanetContext';
 
 function Table() {
@@ -14,6 +14,7 @@ function Table() {
   const [column, setColumn] = useState('population');
   const [operator, setOperator] = useState('maior que');
   const [number, setNumber] = useState('0');
+  const [appliedFilters, setAppliedFilters] = useState<AppliedFilterType[]>([]);
 
   const planetsContext = useContext(PlanetContext);
 
@@ -47,13 +48,29 @@ function Table() {
           === Number(number));
       setPlanets(filteredPlanets);
     }
-
     setFilterOptions(filterOptions.filter((filterOption) => filterOption !== column));
     setColumn(filterOptions[1]);
+    setAppliedFilters([...appliedFilters, {
+      column,
+      operator,
+      number,
+    }]);
 
     if (column !== filterOptions[0]) {
       setColumn(filterOptions[0]);
     }
+  };
+
+  const handleRemoveFilter = (filter: AppliedFilterType) => {
+    const filtersAfterDeletion = appliedFilters
+      .filter((appliedFilter) => appliedFilter.column !== filter.column);
+    setAppliedFilters(filtersAfterDeletion);
+    setFilterOptions([...filterOptions, filter.column]);
+    setPlanets(planetsContext);
+  };
+
+  const handleRemoveFiltersClick = () => {
+    setPlanets(planetsContext);
   };
 
   return (
@@ -96,7 +113,27 @@ function Table() {
         >
           Adicionar Filtro
         </button>
+        <button
+          data-testid="button-remove-filters"
+          onClick={ handleRemoveFiltersClick }
+        >
+          Remover todas filtragens
+        </button>
       </div>
+      {
+        appliedFilters.map((appliedFilter) => (
+          <span data-testid="filter" key={ appliedFilter.column }>
+            <p>
+              {
+              `${appliedFilter.column} ${appliedFilter.operator} ${appliedFilter.number}`
+              }
+            </p>
+            <button onClick={ () => handleRemoveFilter(appliedFilter) }>
+              Remover
+            </button>
+          </span>
+        ))
+      }
       <table>
         <thead>
           <tr>
