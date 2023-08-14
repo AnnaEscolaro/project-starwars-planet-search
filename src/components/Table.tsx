@@ -62,15 +62,52 @@ function Table() {
   };
 
   const handleRemoveFilter = (filter: AppliedFilterType) => {
+    setFilterOptions([...filterOptions, filter.column]);
     const filtersAfterDeletion = appliedFilters
       .filter((appliedFilter) => appliedFilter.column !== filter.column);
     setAppliedFilters(filtersAfterDeletion);
-    setFilterOptions([...filterOptions, filter.column]);
-    setPlanets(planetsContext);
+
+    if (filtersAfterDeletion.length === 0) {
+      setPlanets(planetsContext);
+    }
+
+    if (filtersAfterDeletion.length > 0) {
+      const xablau = planetsContext;
+      setPlanets(xablau);
+      filtersAfterDeletion.forEach((appliedFilter) => {
+        if (appliedFilter.operator === 'maior que') {
+          const xablau1 = xablau
+            .filter((planet: PlanetType) => Number(planet[appliedFilter
+              .column as keyof PlanetType])
+            > Number(appliedFilter.number));
+          setPlanets(xablau1);
+        }
+        if (appliedFilter.operator === 'menor que') {
+          setPlanets(xablau
+            .filter((planet: PlanetType) => Number(planet[appliedFilter
+              .column as keyof PlanetType])
+              < Number(appliedFilter.number)));
+        }
+        if (appliedFilter.operator === 'igual a') {
+          setPlanets(xablau
+            .filter((planet: PlanetType) => Number(planet[appliedFilter
+              .column as keyof PlanetType])
+              === Number(appliedFilter.number)));
+        }
+      });
+    }
   };
 
   const handleRemoveFiltersClick = () => {
     setPlanets(planetsContext);
+    setFilterOptions([
+      'population',
+      'orbital_period',
+      'diameter',
+      'rotation_period',
+      'surface_water',
+    ]);
+    setAppliedFilters([]);
   };
 
   return (
@@ -88,8 +125,8 @@ function Table() {
           onChange={ (e) => setColumn(e.target.value) }
         >
           {
-            filterOptions.map((filterOption) => (
-              <option key={ filterOption }>{ filterOption }</option>
+            filterOptions.map((filterOption, index) => (
+              <option key={ index }>{ filterOption }</option>
             ))
           }
         </select>
@@ -121,8 +158,8 @@ function Table() {
         </button>
       </div>
       {
-        appliedFilters.map((appliedFilter) => (
-          <span data-testid="filter" key={ appliedFilter.column }>
+        appliedFilters.map((appliedFilter, index) => (
+          <span data-testid="filter" key={ index }>
             <p>
               {
               `${appliedFilter.column} ${appliedFilter.operator} ${appliedFilter.number}`
