@@ -11,7 +11,7 @@ function Table() {
     'rotation_period',
     'surface_water',
   ]);
-  const [column, setColumn] = useState('population');
+  const [column, setColumn] = useState(filterOptions[0]);
   const [operator, setOperator] = useState('maior que');
   const [number, setNumber] = useState('0');
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilterType[]>([]);
@@ -63,33 +63,42 @@ function Table() {
 
   const handleRemoveFilter = (filter: AppliedFilterType) => {
     setFilterOptions([...filterOptions, filter.column]);
+    setColumn(filterOptions[0]);
     const filtersAfterDeletion = appliedFilters
       .filter((appliedFilter) => appliedFilter.column !== filter.column);
     setAppliedFilters(filtersAfterDeletion);
 
     if (filtersAfterDeletion.length === 0) {
       setPlanets(planetsContext);
+      setFilterOptions([
+        'population',
+        'orbital_period',
+        'diameter',
+        'rotation_period',
+        'surface_water',
+      ]);
+      setAppliedFilters([]);
     }
 
     if (filtersAfterDeletion.length > 0) {
-      const xablau = planetsContext;
-      setPlanets(xablau);
+      const planetsToFilter = planetsContext;
+      setPlanets(planetsToFilter);
       filtersAfterDeletion.forEach((appliedFilter) => {
         if (appliedFilter.operator === 'maior que') {
-          const xablau1 = xablau
+          const filteredContextPlanet = planetsToFilter
             .filter((planet: PlanetType) => Number(planet[appliedFilter
               .column as keyof PlanetType])
             > Number(appliedFilter.number));
-          setPlanets(xablau1);
+          setPlanets(filteredContextPlanet);
         }
         if (appliedFilter.operator === 'menor que') {
-          setPlanets(xablau
+          setPlanets(planetsToFilter
             .filter((planet: PlanetType) => Number(planet[appliedFilter
               .column as keyof PlanetType])
               < Number(appliedFilter.number)));
         }
         if (appliedFilter.operator === 'igual a') {
-          setPlanets(xablau
+          setPlanets(planetsToFilter
             .filter((planet: PlanetType) => Number(planet[appliedFilter
               .column as keyof PlanetType])
               === Number(appliedFilter.number)));
@@ -158,15 +167,15 @@ function Table() {
         </button>
       </div>
       {
-        appliedFilters.map((appliedFilter, index) => (
-          <span data-testid="filter" key={ index }>
+        appliedFilters.map((appliedFilter) => (
+          <span data-testid="filter" key={ appliedFilter.column }>
             <p>
               {
               `${appliedFilter.column} ${appliedFilter.operator} ${appliedFilter.number}`
               }
             </p>
             <button onClick={ () => handleRemoveFilter(appliedFilter) }>
-              Remover
+              Remover Filtro
             </button>
           </span>
         ))

@@ -124,7 +124,7 @@ test('Se o botão de resetar todas as filtragens funciona corretamente', async (
   expect(tableLines2).toHaveLength(11);
 });
 
-test('Se o botão de resetar todas as filtragens individualmente funciona corretamente', async () => {
+test('Se o botão de resetar todas as filtragens individualmente funciona corretamente - operador maior que', async () => {
   global.fetch = vi.fn().mockResolvedValue({
     json: async () => MockFetch,
   });
@@ -139,31 +139,129 @@ test('Se o botão de resetar todas as filtragens individualmente funciona corret
   const tableLines = screen.getAllByRole('row');
   expect(tableLines).toHaveLength(7);
 
-  await userEvent.selectOptions(screen.getByTestId('column-filter'), 'diameter');
+  const removeButtons = screen.getByRole('button', { name: /Remover Filtro/i });
+  
+  await userEvent.click(removeButtons);
+  const tableLines2 = screen.getAllByRole('row');
+  expect(tableLines2).toHaveLength(11);
+});
+
+test('Se o botão de resetar todas as filtragens individualmente funciona corretamente - operador menor que', async () => {
+  global.fetch = vi.fn().mockResolvedValue({
+    json: async () => MockFetch,
+  });
+  render(<App />);
+  await waitFor(() => expect(screen.getByPlaceholderText(/Nome do Planeta/i)).toBeInTheDocument(), {
+    timeout: 6000,
+  });
+  await userEvent.selectOptions(screen.getByTestId('column-filter'), 'orbital_period');
   await userEvent.selectOptions(screen.getByTestId('comparison-filter'), 'menor que');
-  await userEvent.type(screen.getByTestId('value-filter'), '13000');
+  await userEvent.type(screen.getByTestId('value-filter'), '500');
   await userEvent.click(screen.getByRole('button', { name: /Adicionar Filtro/i }));
   const tableLinesNew = screen.getAllByRole('row');
-  expect(tableLinesNew).toHaveLength(7);
-
-  await userEvent.selectOptions(screen.getByTestId('column-filter'), 'rotation_period');
-  await userEvent.selectOptions(screen.getByTestId('comparison-filter'), 'igual a');
-  await userEvent.type(screen.getByTestId('value-filter'), '24');
-  await userEvent.click(screen.getByRole('button', { name: /Adicionar Filtro/i }));
+  expect(tableLinesNew).toHaveLength(8);
+  
+  const removeButton2 = screen.getByRole('button', { name: /Remover Filtro/i });
+  await userEvent.click(removeButton2);
   const tableLines3 = screen.getAllByRole('row');
-  expect(tableLines3).toHaveLength(1);
+  expect(tableLines3).toHaveLength(11);
+});
 
-  const removeButtons = screen.getAllByRole('button', { name: /Remover/i });
+test('Se o botão de resetar todas as filtragens individualmente funciona corretamente - operador igual a', async () => {
+  global.fetch = vi.fn().mockResolvedValue({
+    json: async () => MockFetch,
+  });
+  render(<App />);
+  await waitFor(() => expect(screen.getByPlaceholderText(/Nome do Planeta/i)).toBeInTheDocument(), {
+    timeout: 6000,
+  });
+  await userEvent.selectOptions(screen.getByTestId('column-filter'), 'diameter');
+  await userEvent.selectOptions(screen.getByTestId('comparison-filter'), 'igual a');
+  await userEvent.type(screen.getByTestId('value-filter'), '4900');
+  await userEvent.click(screen.getByRole('button', { name: /Adicionar Filtro/i }));
+  const tableLines = screen.getAllByRole('row');
+  expect(tableLines).toHaveLength(2);
+  
+  const removeButton2 = screen.getByRole('button', { name: /Remover Filtro/i });
+  await userEvent.click(removeButton2);
+  const tableLines3 = screen.getAllByRole('row');
+  expect(tableLines3).toHaveLength(11);
+});
 
-  await userEvent.click(removeButtons[2]);
-  const tableLines4 = screen.getAllByRole('row');
-  expect(tableLines4).toHaveLength(1);
+test('Se a exclusão de um filtro mantém os outros aplicados - maior que', async () => {
+  global.fetch = vi.fn().mockResolvedValue({
+    json: async () => MockFetch,
+  });
+  render(<App />);
+  await waitFor(() => expect(screen.getByPlaceholderText(/Nome do Planeta/i)).toBeInTheDocument(), {
+    timeout: 6000,
+  });
+  
+  await userEvent.selectOptions(screen.getByTestId('column-filter'), 'population');
+  await userEvent.selectOptions(screen.getByTestId('comparison-filter'), 'maior que');
+  await userEvent.type(screen.getByTestId('value-filter'), '200000');
+  await userEvent.click(screen.getByRole('button', { name: /Adicionar Filtro/i }));
 
-  await userEvent.click(removeButtons[1]);
-  const tableLines5 = screen.getAllByRole('row');
-  expect(tableLines5).toHaveLength(1);
+  await userEvent.selectOptions(screen.getByTestId('column-filter'), 'diameter');
+  await userEvent.selectOptions(screen.getByTestId('comparison-filter'), 'igual a');
+  await userEvent.type(screen.getByTestId('value-filter'), '4900');
+  await userEvent.click(screen.getByRole('button', { name: /Adicionar Filtro/i }));
+  
+  const removeButton = screen.getAllByRole('button', { name: /Remover Filtro/i });
+  await userEvent.click(removeButton[1]);
 
-  await userEvent.click(removeButtons[0]);
-  const tableLines6 = screen.getAllByRole('row');
-  expect(tableLines6).toHaveLength(11);
+  const tableLines = screen.getAllByRole('row');
+  expect(tableLines).toHaveLength(7);
+});
+
+test('Se a exclusão de um filtro mantém os outros aplicados', async () => {
+  global.fetch = vi.fn().mockResolvedValue({
+    json: async () => MockFetch,
+  });
+  render(<App />);
+  await waitFor(() => expect(screen.getByPlaceholderText(/Nome do Planeta/i)).toBeInTheDocument(), {
+    timeout: 6000,
+  });
+  
+  await userEvent.selectOptions(screen.getByTestId('column-filter'), 'population');
+  await userEvent.selectOptions(screen.getByTestId('comparison-filter'), 'menor que');
+  await userEvent.type(screen.getByTestId('value-filter'), '200000');
+  await userEvent.click(screen.getByRole('button', { name: /Adicionar Filtro/i }));
+
+  await userEvent.selectOptions(screen.getByTestId('column-filter'), 'diameter');
+  await userEvent.selectOptions(screen.getByTestId('comparison-filter'), 'igual a');
+  await userEvent.type(screen.getByTestId('value-filter'), '4900');
+  await userEvent.click(screen.getByRole('button', { name: /Adicionar Filtro/i }));
+  
+  const removeButton = screen.getAllByRole('button', { name: /Remover Filtro/i });
+  await userEvent.click(removeButton[1]);
+
+  const tableLines = screen.getAllByRole('row');
+  expect(tableLines).toHaveLength(2);
+});
+
+test('Se a exclusão de um filtro mantém os outros aplicados', async () => {
+  global.fetch = vi.fn().mockResolvedValue({
+    json: async () => MockFetch,
+  });
+  render(<App />);
+  await waitFor(() => expect(screen.getByPlaceholderText(/Nome do Planeta/i)).toBeInTheDocument(), {
+    timeout: 6000,
+  });
+  
+  await userEvent.selectOptions(screen.getByTestId('column-filter'), 'population');
+  await userEvent.selectOptions(screen.getByTestId('comparison-filter'), 'igual a');
+  await userEvent.type(screen.getByTestId('value-filter'), '200000');
+  await userEvent.click(screen.getByRole('button', { name: /Adicionar Filtro/i }));
+
+  await userEvent.selectOptions(screen.getByTestId('column-filter'), 'diameter');
+  await userEvent.selectOptions(screen.getByTestId('comparison-filter'), 'igual a');
+  await userEvent.type(screen.getByTestId('value-filter'), '4900');
+  await userEvent.click(screen.getByRole('button', { name: /Adicionar Filtro/i }));
+  
+  const removeButton = screen.getAllByRole('button', { name: /Remover Filtro/i });
+  await userEvent.click(removeButton[1]);
+
+  const tableLines = screen.getAllByRole('row');
+  expect(tableLines).toHaveLength(2);
 });
