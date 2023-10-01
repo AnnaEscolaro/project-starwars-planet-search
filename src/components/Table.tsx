@@ -15,6 +15,18 @@ function Table() {
   const [operator, setOperator] = useState('maior que');
   const [number, setNumber] = useState('0');
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilterType[]>([]);
+  const [columnSort, setColumnSort] = useState('population');
+  const [sort, setSort] = useState('');
+  const [orderFilter, setOrderFilter] = useState({ order: { column: columnSort, sort } });
+  const [isCheckedAsc, setIsCheckedAsc] = useState(false);
+  const [isCheckedDesc, setIsCheckedDesc] = useState(false);
+
+  console.log(sort);
+  console.log(columnSort);
+  console.log(orderFilter);
+  console.log(isCheckedAsc);
+  console.log(isCheckedDesc);
+  console.log(planets);
 
   const planetsContext = useContext(PlanetContext);
 
@@ -119,6 +131,51 @@ function Table() {
     setAppliedFilters([]);
   };
 
+  const handleChangeFilter = (e: React.FormEvent<HTMLSelectElement>) => {
+    console.log(setColumnSort(e.target.value));
+  };
+
+  const handleChangeAsc = () => {
+    setSort('ASC');
+    if (isCheckedAsc) {
+      setIsCheckedAsc(false);
+    } else {
+      setIsCheckedAsc(true);
+    }
+  };
+
+  const handleChangeDesc = () => {
+    setSort('DESC');
+    if (isCheckedDesc) {
+      setIsCheckedDesc(false);
+    } else {
+      setIsCheckedDesc(true);
+    }
+  };
+
+  const handleClickSort = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    const planetsToSort = planets;
+    if (sort === 'ASC') {
+      const sortedPlanets = planetsToSort.sort((a, b) => {
+        return Number(a[orderFilter
+          .order.column as keyof PlanetType]) > Number(b[orderFilter
+          .order.column as keyof PlanetType])
+          ? 1 : -1;
+      });
+      setPlanets([...sortedPlanets]);
+    }
+    if (sort === 'DESC') {
+      const sortedPlanets = planetsToSort.sort((a, b) => {
+        return Number(b[orderFilter
+          .order.column as keyof PlanetType]) < Number(a[orderFilter
+          .order.column as keyof PlanetType])
+          ? 1 : -1;
+      });
+      setPlanets([...sortedPlanets]);
+    }
+  };
+
   return (
     <>
       <div id="filter-inputs">
@@ -180,6 +237,37 @@ function Table() {
           </span>
         ))
       }
+      <div id="filter-sort">
+        <select data-testid="column-sort" onChange={ handleChangeFilter }>
+          <option>population</option>
+          <option>orbital_period</option>
+          <option>diameter</option>
+          <option>rotation_period</option>
+          <option>surface_water</option>
+        </select>
+        <input
+          type="radio"
+          value="ASC"
+          data-testid="column-sort-input-asc"
+          defaultChecked={ isCheckedAsc }
+          onChange={ handleChangeAsc }
+        />
+        Ascendente
+        <input
+          type="radio"
+          value="DESC"
+          data-testid="column-sort-input-desc"
+          defaultChecked={ isCheckedDesc }
+          onChange={ handleChangeDesc }
+        />
+        Descendente
+        <button
+          data-testid="column-sort-button"
+          onClick={ handleClickSort }
+        >
+          Ordenar
+        </button>
+      </div>
       <table>
         <thead>
           <tr>
@@ -201,7 +289,7 @@ function Table() {
         <tbody>
           { planets.map((planet) => (
             <tr key={ planet.name }>
-              <td>{ planet.name }</td>
+              <td data-testid="planet-name">{ planet.name }</td>
               <td>{ planet.rotation_period }</td>
               <td>{ planet.orbital_period }</td>
               <td>{ planet.diameter }</td>

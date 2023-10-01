@@ -214,7 +214,7 @@ test('Se a exclusão de um filtro mantém os outros aplicados - maior que', asyn
   expect(tableLines).toHaveLength(7);
 });
 
-test('Se a exclusão de um filtro mantém os outros aplicados', async () => {
+test('Se a exclusão de um filtro mantém os outros aplicados - menor que', async () => {
   global.fetch = vi.fn().mockResolvedValue({
     json: async () => MockFetch,
   });
@@ -240,7 +240,7 @@ test('Se a exclusão de um filtro mantém os outros aplicados', async () => {
   expect(tableLines).toHaveLength(2);
 });
 
-test('Se a exclusão de um filtro mantém os outros aplicados', async () => {
+test('Se a exclusão de um filtro mantém os outros aplicados - igual a', async () => {
   global.fetch = vi.fn().mockResolvedValue({
     json: async () => MockFetch,
   });
